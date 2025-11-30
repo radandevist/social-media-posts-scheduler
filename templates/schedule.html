@@ -490,23 +490,71 @@
 
                     <label for="{{ post_form.tiktok_privacy_level_options.id_for_label }}">
                         Who can view this video?
-                        <select name="{{ post_form.tiktok_privacy_level_options.name }}" :required="showTikTokForm" x-model="privacyLevel" 
-                            id="{{ post_form.tiktok_privacy_level_options.auto_id }}">
-                            <option value="" selected>---------</option>
-                            <option value="FOLLOWER_OF_CREATOR">Followers of Creator</option>
-                            <option value="PUBLIC_TO_EVERYONE">Public to Everyone</option>
-                            <option value="MUTUAL_FOLLOW_FRIENDS">Mutual Follow Friends</option>
-                            <option 
-                            :disabled="disclose" 
-                            :class="disclose ? 'pico-color-slate-750': ''"
-                            :title="disclose ? 'Branded content visibility cannot be set to private.': ''"
-                            value="SELF_ONLY">
-                                Self Only
-                            </option>
-                        </select>
+                        <input type="hidden" name="{{ post_form.tiktok_privacy_level_options.name }}"
+                            x-model="privacyLevel" id="{{ post_form.tiktok_privacy_level_options.auto_id }}">
+
+                        <details class="dropdown" x-data="{ open: false }" :open="open" @click.outside="open = false" style="min-width: max-content;">
+
+                            <summary @click.prevent="open = !open" role="button" class="outline">
+                                <span x-text="privacyLevel ? privacyLabels[privacyLevel] : '------------------'"></span>
+                            </summary>
+
+                            <ul role="listbox">
+
+                                <li>
+                                    <a href="#" @click.prevent="privacyLevel = 'FOLLOWER_OF_CREATOR'; open = false">
+                                        Followers of Creator
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" @click.prevent="privacyLevel = 'PUBLIC_TO_EVERYONE'; open = false">
+                                        Public to Everyone
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" @click.prevent="privacyLevel = 'MUTUAL_FOLLOW_FRIENDS'; open = false">
+                                        Mutual Follow Friends
+                                    </a>
+                                </li>
+
+                                <li x-data="{ isHovering: false }"
+                                    @mouseenter="isHovering = true"
+                                    @mouseleave="isHovering = false"
+                                    style="position: relative;">
+                                    
+                                    <div x-show="isHovering && brandedContent" 
+                                        x-transition
+                                        style="
+                                            position: absolute; 
+                                            top: 50%; 
+                                            right: 0; 
+                                            transform: translate(calc(100% + 10px), -50%); /* Position it to the right */
+                                            background: var(--pico-color-gray-800); 
+                                            color: lightcoral; 
+                                            padding: 15px 20px; 
+                                            border-radius: 4px; 
+                                            font-size: 1rem;
+                                            white-space: nowrap;
+                                            z-index: 1000; /* Ensure it floats above everything */
+                                            pointer-events: none; /* Crucial: ensures tooltip itself doesn't block other events */
+                                        ">
+                                        Branded content visibility cannot be set to private.
+                                    </div>
+
+                                    <a href="#"
+                                    x-ref="selfOnlyLink"
+                                    @click.prevent="if(!brandedContent) { privacyLevel = 'SELF_ONLY'; open = false; }"
+                                    :class="brandedContent ? 'pico-color-slate-500' : ''"
+                                    :style="brandedContent ? 'color: gray; cursor: not-allowed;' : ''">
+                                    Self Only
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </details>
                         {{ post_form.tiktok_privacy_level_options.errors }}
                     </label>
-    
+
                     <div>
                         <legend>Generated with AI?</legend>
                         {{ post_form.tiktok_ai_generated }}
@@ -596,7 +644,7 @@
                             <blockquote x-show="yourBrand && !brandedContent">
                                 ℹ️ Your photo/video will be labeled as 'Promotional content'
                             </blockquote>
-    
+
                             <blockquote x-show="brandedContent">
                                 ℹ️ Your photo/video will be labeled as 'Paid partnership'
                             </blockquote>
@@ -632,16 +680,19 @@
 
             </div>
 
-            <button type="submit" x-bind:disabled="loading || (showTikTokForm && disclose && !(yourBrand || brandedContent)) || (showTikTokForm && privacyLevel == '')">
+            <button type="submit"
+                x-bind:disabled="loading || (showTikTokForm && disclose && !(yourBrand || brandedContent)) || (showTikTokForm && privacyLevel == '')">
                 <i class="bi bi-save"></i>
                 <span>Schedule post</span>
             </button>
-            
+
             <div style="display: flex; flex-direction: column; flex-wrap: wrap;">
 
-    
-                <small x-show="showTikTokForm && disclose && !(yourBrand || brandedContent)" class="pico-color-amber-300">You need to indicate if your content promotes yourself, a third party, or both.</small>
-    
+
+                <small x-show="showTikTokForm && disclose && !(yourBrand || brandedContent)"
+                    class="pico-color-amber-300">You need to indicate if your content promotes yourself, a third party,
+                    or both.</small>
+
                 <small x-show="loading" aria-busy="true">Saving post...</small>
             </div>
 
@@ -836,6 +887,12 @@
             brandedContent: false,
             yourBrand: false,
             privacyLevel: "",
+            privacyLabels: {
+                "FOLLOWER_OF_CREATOR": "Followers of Creator",
+                "PUBLIC_TO_EVERYONE": "Public to Everyone",
+                "MUTUAL_FOLLOW_FRIENDS": "Mutual Follow Friends",
+                "SELF_ONLY": "Self Only"
+            },
             setDisclose: function () {
                 this.disclose = !this.disclose;
 
@@ -843,7 +900,7 @@
                     this.brandedContent = false;
                     this.yourBrand = false;
                 }
-                
+
                 if (this.privacyLevel === 'SELF_ONLY' && this.disclose === true) {
                     this.privacyLevel = "";
                 }
