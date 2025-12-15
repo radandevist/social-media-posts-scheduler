@@ -10,19 +10,21 @@ from integrations.platforms.tiktok import TikTokPoster
 
 
 def get_filepath_from_cloudflare_url(url: str):
+    try:
+        ext = os.path.splitext(url)[1].lower()
+        ext = ext.split("?")[0]
+        filepath = f"/tmp/{uuid.uuid4().hex}{ext}"
 
-    ext = os.path.splitext(url)[1].lower()
-    ext = ext.split("?")[0]
-    filepath = f"/tmp/{uuid.uuid4().hex}{ext}"
+        response = requests.get(url)
+        response.raise_for_status()
 
-    response = requests.get(url)
-    response.raise_for_status()
+        with open(filepath, "wb") as f:
+            f.write(response.content)
 
-    with open(filepath, "wb") as f:
-        f.write(response.content)
-
-    return filepath
-
+        return filepath
+    except Exception as ex:
+        log.exception(ex)
+        return 
 
 def get_tiktok_creator_info(account_id: int):
 

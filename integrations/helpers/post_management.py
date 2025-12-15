@@ -19,6 +19,14 @@ from integrations.platforms.xtwitter import post_on_x
 from integrations.platforms.facebook import post_on_facebook
 from integrations.platforms.instagram import post_on_instagram
 from integrations.platforms.tiktok import post_on_tiktok
+from asgiref.sync import sync_to_async
+
+
+
+@sync_to_async
+def delete_post(post):
+    post.delete()
+
 
 
 def post_scheduled_posts(buffer_seconds: int):
@@ -70,6 +78,10 @@ def post_scheduled_posts(buffer_seconds: int):
                 media_path = None
                 if post.media_file:
                     media_path = get_filepath_from_cloudflare_url(post.media_file.url)
+                    if media_path is None:
+                        await delete_post(post) # TODO better handling in the future
+                        continue
+
                 media_url = None
                 if post.media_file:
                     media_url = f"{settings.APP_URL}/proxy-media-file/{os.path.basename(media_path)}" 

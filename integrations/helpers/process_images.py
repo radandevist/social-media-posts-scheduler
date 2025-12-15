@@ -6,8 +6,6 @@ from socialsched.models import PostModel, MediaFileTypes
 from integrations.helpers.image_processor.make_image_postable import make_image_postable
 from integrations.helpers.utils import get_filepath_from_cloudflare_url
 
-
-
 def process_images():
     try:
 
@@ -32,7 +30,10 @@ def process_images():
             try:
                 image_path = None
                 if post.media_file:
-                    image_path = get_filepath_from_cloudflare_url(post.media_file.url)                
+                    image_path = get_filepath_from_cloudflare_url(post.media_file.url)
+                    if image_path is None:
+                        post.delete() # TODO better handling in the future
+                        continue               
 
                 image_path = make_image_postable(image_path, post.description)
 
