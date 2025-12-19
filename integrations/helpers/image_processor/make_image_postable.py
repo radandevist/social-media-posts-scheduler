@@ -164,7 +164,8 @@ def create_image(*, image_path: str = None, text: str = None):
         text_image_path = create_image_from_text(text)
         bg_image_path = get_relevant_image_for_text(text)
         resized_image_path = resize_image(text_image_path, bg_image_path)
-        os.remove(bg_image_path)
+        if bg_image_path:
+            os.remove(bg_image_path)
         return resized_image_path
 
     if text and image_path:
