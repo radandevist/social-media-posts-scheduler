@@ -78,9 +78,6 @@ def post_scheduled_posts(buffer_seconds: int):
                 media_path = None
                 if post.media_file:
                     media_path = get_filepath_from_cloudflare_url(post.media_file.url)
-                    if media_path is None:
-                        await delete_post(post) # TODO better handling in the future
-                        continue
 
                 media_url = None
                 if post.media_file:

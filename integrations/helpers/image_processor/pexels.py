@@ -47,7 +47,6 @@ def get_relevant_image_for_text(text: str):
         photo_url = best_photo["src"]["large"]  # Or "original", "large", etc.
 
         img_response = requests.get(photo_url)
-        log.debug(img_response.content)
         img_response.raise_for_status()
 
         image_path = f"/tmp/{uuid.uuid4().hex}.png"

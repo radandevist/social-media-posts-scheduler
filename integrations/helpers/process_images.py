@@ -31,13 +31,7 @@ def process_images():
                 image_path = None
                 if post.media_file:
                     image_path = get_filepath_from_cloudflare_url(post.media_file.url)
-                    if image_path is None:
-                        post.delete() # TODO better handling in the future
-                        continue        
-
-                if not image_path:
-                    continue       
-
+  
                 image_path = make_image_postable(image_path, post.description)
 
                 log.debug(f"Processing {image_path}...")
