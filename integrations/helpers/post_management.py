@@ -80,7 +80,7 @@ def post_scheduled_posts(buffer_seconds: int):
                     media_path = get_filepath_from_cloudflare_url(post.media_file.url)
 
                 media_url = None
-                if post.media_file:
+                if post.media_file and media_path:
                     media_url = f"{settings.APP_URL}/proxy-media-file/{os.path.basename(media_path)}" 
 
                 # LINKEDIN
